@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Signal Processing Laboratory</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        :root {
+            --primary-bg: #0a0f1c;
+            --secondary-bg: #1a2332;
+            --accent-bg: #243447;
+            --border-color: #2d3e56;
+            --text-primary: #ffffff;
+            --text-secondary: #b8c5d6;
+            --text-muted: #6b7c93;
+            --accent-blue: #2563eb;
+            --accent-cyan: #06b6d4;
+            --accent-emerald: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-red: #dc2626;
+            --gradient-primary: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
+            --gradient-accent: linear-gradient(90deg, #06b6d4 0%, #2563eb 100%);
+            --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            --shadow-xl: 0 35px 60px -12px rgba(0, 0, 0, 0.6);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: var(--primary-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(37, 99, 235, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 60%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-accent);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .title {
+            font-size: 3rem;
+            font-weight: 800;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.025em;
+        }
+        
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.25rem;
+            max-width: 900px;
+            margin: 0 auto;
+            font-weight: 400;
+        }
+        
+        .version-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--accent-emerald);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .control-panel {
+            background: var(--secondary-bg);
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(20px);
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .control-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--gradient-accent);
+        }
+        
+        .controls-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 1rem;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn-primary {
+            background: var(--accent-emerald);
+            color: white;
+            box-shadow: 0 10px 30px -10px rgba(16, 185, 129, 0.4);
+        }
+        
+        .btn-primary:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px -10px rgba(16, 185, 129, 0.6);
+        }
+        
+        .btn-danger {
+            background: var(--accent-red);
+            color: white;
+            box-shadow: 0 10px 30px -10px rgba(220, 38, 38, 0.4);
+        }
+        
+        .btn-danger:hover {
+            background: #b91c1c;
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px -10px rgba(220, 38, 38, 0.6);
+        }
+        
+        .btn-secondary {
+            background: var(--accent-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--border-color);
+            transform: translateY(-2px);
+        }
+        
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+        
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-emerald);
+            animation: pulse 2s infinite;
+        }
+        
+        .status-indicator.running {
+            background: var(--accent-amber);
+        }
+        
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+        
+        .control-group {
+            background: var(--accent-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .control-group:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .control-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .control-icon {
+            width: 24px;
+            height: 24px;
+            background: var(--accent-cyan);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+        }
+        
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .input-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+        }
+        
+        .input-value {
+            color: var(--accent-cyan);
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--primary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+        }
+        
+        .slider {
+            width: 100%;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 8px;
+            background: var(--primary-bg);
+            border-radius: 4px;
+            outline: none;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        
+        .slider:hover {
+            border-color: var(--accent-cyan);
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: var(--gradient-accent);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(6, 182, 212, 0.5);
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            background: var(--gradient-accent);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+        }
+        
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.5rem;
+            margin-bottom: 2.5rem;
+        }
+        
+        .chart-panel {
+            background: var(--secondary-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(20px);
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .chart-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--gradient-accent);
+        }
+        
+        .chart-title {
+            font-size: 1.375rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 350px;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2.5rem;
+        }
+        
+        .metric-card {
+            background: var(--secondary-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--gradient-accent);
+        }
+        
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--accent-cyan);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 0.5rem;
+        }
+        
+        .metric-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .metric-change {
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 600;
+        }
+        
+        .metric-change.positive {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent-emerald);
+        }
+        
+        .metric-change.negative {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--accent-red);
+        }
+        
+        .info-panel {
+            background: var(--secondary-bg);
+            border-radius: 16px;
+            padding: 2.5rem;
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(20px);
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .info-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--gradient-accent);
+        }
+        
+        .info-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+        
+        .info-item {
+            background: var(--accent-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        
+        .info-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+        
+        .info-highlight {
+            color: var(--accent-cyan);
+            font-weight: 700;
+            font-size: 1rem;
+            display: block;
+            margin-bottom: 0.75rem;
+        }
+        
+        .info-description {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 2rem 0;
+            border-top: 1px solid var(--border-color);
+            margin-top: 3rem;
+        }
+        
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+        
+        @media (max-width: 1024px) {
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+            
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls-header {
+                flex-direction: column;
+            }
+        }
+        
+        .running .status-indicator {
+            background: var(--accent-amber);
+        }
+        
+        .running .control-panel::before {
+            animation: pulse-glow 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { 
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 0.5;
+                transform: scale(0.95);
+            }
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { 
+                box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+            }
+            50% { 
+                box-shadow: 0 0 40px rgba(6, 182, 212, 0.6);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="version-badge">v2.1.0</div>
+            <div class="logo-section">
+                <div class="logo">⊡</div>
+                <div>
+                    <h1 class="title">Signal Processing Laboratory</h1>
+                    <p class="subtitle">
+                        Advanced digital signal processing platform for real-time analysis, filtering, and spectral characterization
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <div class="controls-header">
+                <button id="toggleBtn" class="btn btn-primary">
+                    <span>▶</span> Start Analysis
+                </button>
+                <button id="resetBtn" class="btn btn-secondary">
+                    <span>↻</span> Reset
+                </button>
+                <div class="system-status">
+                    <div class="status-indicator" id="statusIndicator"></div>
+                    <span id="systemStatus">System Ready</span>
+                </div>
+            </div>
+
+            <div class="controls-grid">
+                <!-- Signal Generation Module -->
+                <div class="control-group">
+                    <h3 class="control-title">
+                        <div class="control-icon">⊡</div>
+                        Signal Generation
+                    </h3>
+                    
+                    <div class="input-group">
+                        <label class="input-label">
+                            Waveform Type
+                        </label>
+                        <select id="signalType" class="input-field">
+                            <option value="sine">Sinusoidal</option>
+                            <option value="square">Square Wave</option>
+                            <option value="sawtooth">Sawtooth</option>
+                            <option value="triangle">Triangle</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">
+                            Carrier Frequency
+                            <span class="input-value"><span id="freqValue">5</span> Hz</span>
+                        </label>
+                        <input type="range" id="frequency" class="slider" min="0.5" max="25" step="0.1" value="5">
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">
+                            Signal Amplitude
+                            <span class="input-value"><span id="ampValue">1.0</span> V</span>
+                        </label>
+                        <input type="range" id="amplitude" class="slider" min="0.1" max="3" step="0.1" value="1">
+                    </div>
+                </div>
+
+                <!-- Digital Filter Design -->
+                <div class="control-group">
+                    <h3 class="control-title">
+                        <div class="control-icon">⚙</div>
+                        Digital Filter
+                    </h3>
+                    
+                    <div class="input-group">
+                        <label class="input-label">Filter Type</label>
+                        <select id="filterType" class="input-field">
+                            <option value="none">Bypass</option>
+                            <option value="lowpass">Low-Pass (LPF)</option>
+                            <option value="highpass">High-Pass (HPF)</option>
+                            <option value="bandpass">Band-Pass (BPF)</option>
+                            <option value="notch">Notch Filter</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">
+                            Cutoff Frequency
+                            <span class="input-value"><span id="cutoffValue">10</span> Hz</span>
+                        </label>
+                        <input type="range" id="cutoffFreq" class="slider" min="0.5" max="50" step="0.5" value="10">
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">
+                            Filter Order
+                            <span class="input-value"><span id="orderValue">2</span></span>
+                        </label>
+                        <input type="range" id="filterOrder" class="slider" min="1" max="8" step="1" value="2">
+                    </div>
+                </div>
+
+                <!-- Noise & System Parameters -->
+                <div class="control-group">
+                    <h3 class="control-title">
+                        <div class="control-icon">📊</div>
+                        System Parameters
+                    </h3>
+                    
+                    <div class="input-group">
+                        <label class="input-label">
+                            AWGN Level
+                            <span class="input-value"><span id="noiseValue">0.0</span></span>
+                        </label>
+                        <input type="range" id="noiseLevel" class="slider" min="0" max="0.8" step="0.05" value="0">
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">
+                            Sampling Rate
+                            <span class="input-value"><span id="samplingValue">128</span> Hz</span>
+                        </label>
+                        <input type="range" id="samplingRate" class="slider" min="64" max="512" step="16" value="128">
+                    </div>
+                </div>
+
+                <!-- Advanced Analysis -->
+                <div class="control-group">
+                    <h3 class="control-title">
+                        <div class="control-icon">🔬</div>
+                        Analysis Settings
+                    </h3>
+                    
+                    <div class="input-group">
+                        <label class="input-label">Window Function</label>
+                        <select id="windowType" class="input-field">
+                            <option value="rectangular">Rectangular</option>
+                            <option value="hamming">Hamming</option>
+                            <option value="hanning">Hanning</option>
+                            <option value="blackman">Blackman</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">
+                            FFT Size
+                            <span class="input-value"><span id="fftValue">256</span></span>
+                        </label>
+                        <input type="range" id="fftSize" class="slider" min="128" max="1024" step="128" value="256">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Metrics -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-value" id="snrMetric">40.0</div>
+                <div class="metric-label">SNR (dB)</div>
+                <div class="metric-change positive" id="snrChange">+2.1 dB</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="thd">0.05</div>
+                <div class="metric-label">THD (%)</div>
+                <div class="metric-change negative" id="thdChange">+0.02%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="bandwidth">25.0</div>
+                <div class="metric-label">Bandwidth (Hz)</div>
+                <div class="metric-change positive" id="bwChange">Stable</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="rmsValue">0.71</div>
+                <div class="metric-label">RMS (V)</div>
+                <div class="metric-change positive" id="rmsChange">±0.001</div>
+            </div>
+        </div>
+
+        <!-- Real-Time Visualization Panels -->
+        <div class="charts-container">
+            <!-- Time Domain Analysis -->
+            <div class="chart-panel">
+                <h3 class="chart-title">
+                    <span>📈</span> Time Domain Analysis
+                </h3>
+                <div class="chart-container">
+                    <canvas id="timeChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Frequency Domain Spectral Analysis -->
+            <div class="chart-panel">
+                <h3 class="chart-title">
+                    <span>📊</span> Frequency Domain (FFT)
+                </h3>
+                <div class="chart-container">
+                    <canvas id="frequencyChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Specifications -->
+        <div class="info-panel">
+            <h4 class="info-title">Technical Implementation & Features</h4>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-highlight">Advanced DSP Engine</span>
+                    <p class="info-description">
+                        Real-time digital signal processing with configurable sampling rates up to 512 Hz, 
+                        multi-waveform synthesis, and precision floating-point arithmetic for research-grade accuracy.
+                    </p>
+                </div>
+                <div class="info-item">
+                    <span class="info-highlight">Adaptive Filter Bank</span>
+                    <p class="info-description">
+                        IIR digital filter implementation with variable order (1-8), supporting low-pass, high-pass, 
+                        band-pass, and notch configurations with real-time parameter adjustment.
+                    </p>
+                </div>
+                <div class="info-item">
+                    <span class="info-highlight">Spectral Analysis Suite</span>
+                    <p class="info-description">
+                        Fast Fourier Transform with configurable window functions (Hamming, Hanning, Blackman), 
+                        variable FFT sizes up to 1024 points, and comprehensive frequency domain metrics.
+                    </p>
+                </div>
+                <div class="info-item">
+                    <span class="info-highlight">Performance Metrics</span>
+                    <p class="info-description">
+                        Real-time calculation of SNR, THD, RMS values, bandwidth measurements, and filter 
+                        performance characteristics with statistical trend analysis.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p class="footer-text">
+                Professional Signal Processing Laboratory © 2024 | Built for Engineering Research & Development
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced application state
+        let isRunning = false;
+        let animationId = null;
+        let timeChart = null;
+        let frequencyChart = null;
+        let performanceHistory = {
+            snr: [],
+            thd: [],
+            rms: []
+        };
+        
+        // Enhanced signal parameters
+        let signalParams = {
+            type: 'sine',
+            frequency: 5,
+            amplitude: 1,
+            filterType: 'none',
+            cutoffFreq: 10,
+            filterOrder: 2,
+            noiseLevel: 0,
+            samplingRate: 128,
+            windowType: 'hamming',
+            fftSize: 256
+        };
+
+        // Initialize enhanced charts
+        function initCharts() {
+            const timeCtx = document.getElementById('timeChart').getContext('2d');
+            const freqCtx = document.getElementById('frequencyChart').getContext('2d');
+            
+            Chart.defaults.color = '#b8c5d6';
+            Chart.defaults.borderColor = '#2d3e56';
+            
+            timeChart = new Chart(timeCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Original Signal',
+                        data: [],
+                        borderColor: '#06b6d4',
+                        backgroundColor: 'rgba(6, 182, 212, 0.05)',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        tension: 0,
+                        fill: true
+                    }, {
+                        label: 'Filtered Signal',
+                        data: [],
+                        borderColor: '#2563eb',
+                        backgroundColor: 'rgba(37, 99, 235, 0.05)',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        tension: 0,
+                        fill: true,
+                        hidden: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { 
+                                color: '#b8c5d6',
+                                usePointStyle: true,
+                                font: { size: 12, weight: '500' }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(26, 35, 50, 0.9)',
+                            titleColor: '#ffffff',
+                            bodyColor: '#b8c5d6',
+                            borderColor: '#2d3e56',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: { 
+                                display: true, 
+                                text: 'Time (s)', 
+                                color: '#b8c5d6',
+                                font: { size: 12, weight: '600' }
+                            },
+                            ticks: { 
+                                color: '#6b7c93',
+                                font: { size: 11 }
+                            },
+                            grid: { 
+                                color: '#2d3e56',
+                                lineWidth: 0.5
+                            }
+                        },
+                        y: {
+                            title: { 
+                                display: true, 
+                                text: 'Amplitude (V)', 
+                                color: '#b8c5d6',
+                                font: { size: 12, weight: '600' }
+                            },
+                            ticks: { 
+                                color: '#6b7c93',
+                                font: { size: 11 }
+                            },
+                            grid: { 
+                                color: '#2d3e56',
+                                lineWidth: 0.5
+                            }
+                        }
+                    },
+                    animation: { duration: 0 },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+            
+            frequencyChart = new Chart(freqCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Magnitude Spectrum',
+                        data: [],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 2,
+                        pointRadius: 2,
+                        pointBackgroundColor: '#10b981',
+                        pointBorderColor: '#10b981',
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { 
+                                color: '#b8c5d6',
+                                usePointStyle: true,
+                                font: { size: 12, weight: '500' }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(26, 35, 50, 0.9)',
+                            titleColor: '#ffffff',
+                            bodyColor: '#b8c5d6',
+                            borderColor: '#2d3e56',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: { 
+                                display: true, 
+                                text: 'Frequency (Hz)', 
+                                color: '#b8c5d6',
+                                font: { size: 12, weight: '600' }
+                            },
+                            ticks: { 
+                                color: '#6b7c93',
+                                font: { size: 11 }
+                            },
+                            grid: { 
+                                color: '#2d3e56',
+                                lineWidth: 0.5
+                            }
+                        },
+                        y: {
+                            title: { 
+                                display: true, 
+                                text: 'Magnitude (dB)', 
+                                color: '#b8c5d6',
+                                font: { size: 12, weight: '600' }
+                            },
+                            ticks: { 
+                                color: '#6b7c93',
+                                font: { size: 11 }
+                            },
+                            grid: { 
+                                color: '#2d3e56',
+                                lineWidth: 0.5
+                            }
+                        }
+                    },
+                    animation: { duration: 0 },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+        }
+
+        // Enhanced signal generation with window functions
+        function generateSignal() {
+            const { type, frequency, amplitude, filterType, cutoffFreq, filterOrder, noiseLevel, samplingRate, windowType, fftSize } = signalParams;
+            const numPoints = 256;
+            const timeStep = 1 / samplingRate;
+            
+            const timeLabels = [];
+            const originalData = [];
+            const rawSignal = [];
+            
+            // Generate time domain signal
+            for (let i = 0; i < numPoints; i++) {
+                const t = i * timeStep;
+                let value = 0;
+                
+                switch (type) {
+                    case 'sine':
+                        value = amplitude * Math.sin(2 * Math.PI * frequency * t);
+                        break;
+                    case 'square':
+                        value = amplitude * Math.sign(Math.sin(2 * Math.PI * frequency * t));
+                        break;
+                    case 'sawtooth':
+                        value = amplitude * (2 * (frequency * t - Math.floor(frequency * t + 0.5)));
+                        break;
+                    case 'triangle':
+                        value = amplitude * (2 * Math.abs(2 * (frequency * t - Math.floor(frequency * t + 0.5))) - 1);
+                        break;
+                }
+                
+                // Add AWGN noise
+                if (noiseLevel > 0) {
+                    value += noiseLevel * (Math.random() - 0.5) * 2;
+                }
+                
+                timeLabels.push(t.toFixed(3));
+                originalData.push(value);
+                rawSignal.push(value);
+            }
+            
+            // Apply enhanced digital filter
+            const filteredData = applyEnhancedFilter(rawSignal, filterType, cutoffFreq, filterOrder, samplingRate);
+            
+            // Update time domain chart
+            timeChart.data.labels = timeLabels;
+            timeChart.data.datasets[0].data = originalData;
+            timeChart.data.datasets[1].data = filteredData;
+            timeChart.data.datasets[1].hidden = (filterType === 'none');
+            timeChart.update('none');
+            
+            // Calculate and display enhanced FFT with windowing
+            const fftData = calculateEnhancedFFT(rawSignal, samplingRate, windowType, fftSize);
+            const freqLabels = fftData.map(d => d.frequency.toFixed(1));
+            const magnitudes = fftData.map(d => 20 * Math.log10(Math.abs(d.magnitude) + 1e-10)); // Convert to dB
+            
+            frequencyChart.data.labels = freqLabels;
+            frequencyChart.data.datasets[0].data = magnitudes;
+            frequencyChart.update('none');
+            
+            // Update performance metrics
+            updatePerformanceMetrics(rawSignal, filteredData, frequency, amplitude, noiseLevel);
+        }
+
+        // Enhanced digital filter with multiple types and orders
+        function applyEnhancedFilter(signal, type, cutoff, order, samplingRate) {
+            if (type === 'none') return signal;
+            
+            const filtered = [...signal];
+            const nyquist = samplingRate / 2;
+            const normalizedCutoff = cutoff / nyquist;
+            
+            // Simple IIR implementation for different filter types
+            const alpha = Math.exp(-2 * Math.PI * normalizedCutoff);
+            
+            switch (type) {
+                case 'lowpass':
+                    for (let stage = 0; stage < order; stage++) {
+                        for (let i = 1; i < filtered.length; i++) {
+                            filtered[i] = (1 - alpha) * filtered[i] + alpha * filtered[i-1];
+                        }
+                    }
+                    break;
+                    
+                case 'highpass':
+                    for (let stage = 0; stage < order; stage++) {
+                        for (let i = 1; i < filtered.length; i++) {
+                            filtered[i] = alpha * (filtered[i-1] + signal[i] - signal[i-1]);
+                        }
+                    }
+                    break;
+                    
+                case 'bandpass':
+                    // Simple bandpass as cascade of highpass and lowpass
+                    const lowCutoff = cutoff * 0.8;
+                    const highCutoff = cutoff * 1.2;
+                    let temp = applyEnhancedFilter(signal, 'highpass', lowCutoff, Math.floor(order/2), samplingRate);
+                    return applyEnhancedFilter(temp, 'lowpass', highCutoff, Math.ceil(order/2), samplingRate);
+                    
+                case 'notch':
+                    // Simple notch filter implementation
+                    const notchQ = 5; // Quality factor
+                    const omega = 2 * Math.PI * cutoff / samplingRate;
+                    const cosOmega = Math.cos(omega);
+                    const alpha_notch = Math.sin(omega) / (2 * notchQ);
+                    
+                    const b0 = 1, b1 = -2 * cosOmega, b2 = 1;
+                    const a0 = 1 + alpha_notch, a1 = -2 * cosOmega, a2 = 1 - alpha_notch;
+                    
+                    let x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+                    for (let i = 0; i < filtered.length; i++) {
+                        const x0 = signal[i];
+                        const y0 = (b0 * x0 + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2) / a0;
+                        
+                        filtered[i] = y0;
+                        x2 = x1; x1 = x0;
+                        y2 = y1; y1 = y0;
+                    }
+                    break;
+            }
+            
+            return filtered;
+        }
+
+        // Enhanced FFT with windowing functions
+        function calculateEnhancedFFT(timeData, samplingRate, windowType, fftSize) {
+            const N = Math.min(timeData.length, fftSize);
+            const windowed = applyWindow(timeData.slice(0, N), windowType);
+            const fftResult = [];
+            
+            for (let k = 0; k < N/2; k++) {
+                let real = 0, imag = 0;
+                for (let n = 0; n < N; n++) {
+                    const angle = -2 * Math.PI * k * n / N;
+                    real += windowed[n] * Math.cos(angle);
+                    imag += windowed[n] * Math.sin(angle);
+                }
+                
+                const magnitude = Math.sqrt(real * real + imag * imag) / N;
+                const freq = k * samplingRate / N;
+                
+                if (k < 50) { // Show first 50 frequency bins
+                    fftResult.push({
+                        frequency: freq,
+                        magnitude: magnitude,
+                        phase: Math.atan2(imag, real)
+                    });
+                }
+            }
+            
+            return fftResult;
+        }
+
+        // Window functions
+        function applyWindow(data, windowType) {
+            const N = data.length;
+            const windowed = [...data];
+            
+            for (let n = 0; n < N; n++) {
+                let w = 1; // Rectangular window (default)
+                
+                switch (windowType) {
+                    case 'hamming':
+                        w = 0.54 - 0.46 * Math.cos(2 * Math.PI * n / (N - 1));
+                        break;
+                    case 'hanning':
+                        w = 0.5 * (1 - Math.cos(2 * Math.PI * n / (N - 1)));
+                        break;
+                    case 'blackman':
+                        w = 0.42 - 0.5 * Math.cos(2 * Math.PI * n / (N - 1)) + 
+                            0.08 * Math.cos(4 * Math.PI * n / (N - 1));
+                        break;
+                }
+                
+                windowed[n] *= w;
+            }
+            
+            return windowed;
+        }
+
+        // Enhanced performance metrics calculation
+        function updatePerformanceMetrics(original, filtered, frequency, amplitude, noiseLevel) {
+            // Calculate RMS
+            const rms = Math.sqrt(original.reduce((sum, val) => sum + val * val, 0) / original.length);
+            
+            // Calculate SNR
+            const signalPower = amplitude * amplitude / 2; // RMS^2 for sine wave
+            const noisePower = noiseLevel * noiseLevel / 3; // Uniform noise variance
+            const snr = noisePower > 0 ? 10 * Math.log10(signalPower / noisePower) : 60;
+            
+            // Calculate THD (simplified)
+            const fundamental = amplitude;
+            const harmonics = original.filter((_, i) => i % Math.floor(signalParams.samplingRate / frequency) !== 0);
+            const harmonicRMS = Math.sqrt(harmonics.reduce((sum, val) => sum + val * val, 0) / harmonics.length);
+            const thd = (harmonicRMS / fundamental) * 100;
+            
+            // Update metric displays
+            document.getElementById('snrMetric').textContent = Math.max(0, snr).toFixed(1);
+            document.getElementById('thd').textContent = Math.min(99.9, thd).toFixed(2);
+            document.getElementById('bandwidth').textContent = (signalParams.samplingRate / 2).toFixed(1);
+            document.getElementById('rmsValue').textContent = rms.toFixed(3);
+            
+            // Update performance history
+            performanceHistory.snr.push(snr);
+            performanceHistory.thd.push(thd);
+            performanceHistory.rms.push(rms);
+            
+            // Keep only last 10 values
+            if (performanceHistory.snr.length > 10) {
+                performanceHistory.snr.shift();
+                performanceHistory.thd.shift();
+                performanceHistory.rms.shift();
+            }
+            
+            // Update change indicators
+            updateChangeIndicators();
+        }
+
+        // Update change indicators for metrics
+        function updateChangeIndicators() {
+            const history = performanceHistory;
+            
+            if (history.snr.length >= 2) {
+                const snrChange = history.snr[history.snr.length - 1] - history.snr[history.snr.length - 2];
+                const snrElement = document.getElementById('snrChange');
+                snrElement.textContent = (snrChange >= 0 ? '+' : '') + snrChange.toFixed(1) + ' dB';
+                snrElement.className = 'metric-change ' + (snrChange >= 0 ? 'positive' : 'negative');
+            }
+            
+            if (history.thd.length >= 2) {
+                const thdChange = history.thd[history.thd.length - 1] - history.thd[history.thd.length - 2];
+                const thdElement = document.getElementById('thdChange');
+                thdElement.textContent = (thdChange >= 0 ? '+' : '') + thdChange.toFixed(3) + '%';
+                thdElement.className = 'metric-change ' + (thdChange <= 0 ? 'positive' : 'negative');
+            }
+        }
+
+        // Update all display values
+        function updateDisplays() {
+            const { frequency, amplitude, cutoffFreq, filterOrder, noiseLevel, samplingRate, fftSize } = signalParams;
+            
+            document.getElementById('freqValue').textContent = frequency.toFixed(1);
+            document.getElementById('ampValue').textContent = amplitude.toFixed(1);
+            document.getElementById('cutoffValue').textContent = cutoffFreq.toFixed(1);
+            document.getElementById('orderValue').textContent = filterOrder;
+            document.getElementById('noiseValue').textContent = noiseLevel.toFixed(2);
+            document.getElementById('samplingValue').textContent = samplingRate;
+            document.getElementById('fftValue').textContent = fftSize;
+            
+            // Enable/disable cutoff frequency based on filter type
+            const cutoffSlider = document.getElementById('cutoffFreq');
+            const orderSlider = document.getElementById('filterOrder');
+            cutoffSlider.disabled = (signalParams.filterType === 'none');
+            orderSlider.disabled = (signalParams.filterType === 'none');
+        }
+
+        // Enhanced animation loop with performance monitoring
+        function animate() {
+            if (isRunning) {
+                generateSignal();
+                animationId = setTimeout(() => {
+                    requestAnimationFrame(animate);
+                }, 150); // Slightly slower for smoother performance
+            }
+        }
+
+        // System status updates
+        function updateSystemStatus(status) {
+            const statusElement = document.getElementById('systemStatus');
+            const indicatorElement = document.getElementById('statusIndicator');
+            
+            statusElement.textContent = status;
+            
+            if (status === 'Processing...') {
+                indicatorElement.classList.add('running');
+            } else {
+                indicatorElement.classList.remove('running');
+            }
+        }
+
+        // Enhanced event listeners
+        function setupEventListeners() {
+            // Control buttons
+            document.getElementById('toggleBtn').addEventListener('click', () => {
+                isRunning = !isRunning;
+                const btn = document.getElementById('toggleBtn');
+                
+                if (isRunning) {
+                    btn.innerHTML = '<span>⏸</span> Stop Analysis';
+                    btn.className = 'btn btn-danger';
+                    document.querySelector('.container').classList.add('running');
+                    updateSystemStatus('Processing...');
+                    animate();
+                } else {
+                    btn.innerHTML = '<span>▶</span> Start Analysis';
+                    btn.className = 'btn btn-primary';
+                    document.querySelector('.container').classList.remove('running');
+                    updateSystemStatus('System Ready');
+                    if (animationId) {
+                        clearTimeout(animationId);
+                    }
+                }
+            });
+
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                isRunning = false;
+                const btn = document.getElementById('toggleBtn');
+                btn.innerHTML = '<span>▶</span> Start Analysis';
+                btn.className = 'btn btn-primary';
+                document.querySelector('.container').classList.remove('running');
+                updateSystemStatus('System Reset');
+                
+                if (animationId) {
+                    clearTimeout(animationId);
+                }
+                
+                // Reset performance history
+                performanceHistory = { snr: [], thd: [], rms: [] };
+                
+                generateSignal();
+                setTimeout(() => updateSystemStatus('System Ready'), 1000);
+            });
+
+            // Enhanced parameter controls
+            const controls = [
+                { id: 'signalType', property: 'type' },
+                { id: 'frequency', property: 'frequency', type: 'number' },
+                { id: 'amplitude', property: 'amplitude', type: 'number' },
+                { id: 'filterType', property: 'filterType' },
+                { id: 'cutoffFreq', property: 'cutoffFreq', type: 'number' },
+                { id: 'filterOrder', property: 'filterOrder', type: 'number' },
+                { id: 'noiseLevel', property: 'noiseLevel', type: 'number' },
+                { id: 'samplingRate', property: 'samplingRate', type: 'number' },
+                { id: 'windowType', property: 'windowType' },
+                { id: 'fftSize', property: 'fftSize', type: 'number' }
+            ];
+
+            controls.forEach(control => {
+                const element = document.getElementById(control.id);
+                element.addEventListener('input', (e) => {
+                    const value = control.type === 'number' ? parseFloat(e.target.value) : e.target.value;
+                    signalParams[control.property] = value;
+                    updateDisplays();
+                    
+                    if (!isRunning) {
+                        generateSignal();
+                    }
+                });
+            });
+        }
+
+        // Initialize the enhanced application
+        function init() {
+            initCharts();
+            setupEventListeners();
+            updateDisplays();
+            updateSystemStatus('System Ready');
+            generateSignal();
+            
+            // Add smooth fade-in animation
+            document.body.style.opacity = '0';
+            setTimeout(() => {
+                document.body.style.transition = 'opacity 1s ease-in-out';
+                document.body.style.opacity = '1';
+            }, 100);
+        }
+
+        // Start the application when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
